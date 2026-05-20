@@ -557,30 +557,14 @@ function handleSubmit(e) {
   document.getElementById('success-state').style.display = 'block';
   window.scrollTo({ top: document.getElementById('contact').offsetTop - 80, behavior: 'smooth' });
 
-  // Post to Google Apps Script via hidden iframe (bypasses CORS)
+  // Send to Google Apps Script via GET request (no CORS issues)
   if (APPS_SCRIPT_URL) {
-    var iframe = document.getElementById('hidden_iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.name = 'hidden_iframe';
-      iframe.id = 'hidden_iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-    }
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = APPS_SCRIPT_URL;
-    form.target = 'hidden_iframe';
-    Object.keys(payload).forEach(function(key) {
-      var input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = key;
-      input.value = payload[key];
-      form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    var params = Object.keys(payload).map(function(key) {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(payload[key]);
+    }).join('&');
+    var url = APPS_SCRIPT_URL + '?' + params;
+    var img = new Image();
+    img.src = url;
   }
 }
 
