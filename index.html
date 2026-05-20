@@ -527,6 +527,9 @@ function runCalc() {
   el.textContent = '$' + Math.round(totalCredit).toLocaleString();
 }
 
+// ── Paste your Google Apps Script Web App URL below ──
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzkTthgHOUdkjjBS5bQfwQcw_HQ2OFKl8lFz8ORPXh4cngvc9xrdGk6eCxC4x4g_88f/exec";
+
 function handleSubmit(e) {
   e.preventDefault();
   var fname    = document.getElementById('fname').value.trim();
@@ -536,9 +539,33 @@ function handleSubmit(e) {
     alert('Please fill in your name, email, and business name to continue.');
     return;
   }
+
+  var payload = {
+    fname:     fname,
+    lname:     document.getElementById('lname').value.trim(),
+    email:     email,
+    phone:     document.getElementById('phone').value.trim(),
+    business:  business,
+    locations: document.getElementById('locations').value,
+    employees: document.getElementById('employees').value,
+    claimed:   document.getElementById('claimed').value,
+    message:   document.getElementById('message').value.trim()
+  };
+
+  // Show success immediately — don't make prospect wait
   document.getElementById('form-area').style.display = 'none';
   document.getElementById('success-state').style.display = 'block';
   window.scrollTo({ top: document.getElementById('contact').offsetTop - 80, behavior: 'smooth' });
+
+  // Post to Google Apps Script in background
+  if (APPS_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbzkTthgHOUdkjjBS5bQfwQcw_HQ2OFKl8lFz8ORPXh4cngvc9xrdGk6eCxC4x4g_88f/exec") {
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function(err) { console.error('Submission error:', err); });
+  }
 }
 
 document.querySelectorAll('a[href^="#"]').forEach(function(a) {
